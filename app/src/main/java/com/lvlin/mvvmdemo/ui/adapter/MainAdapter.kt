@@ -1,4 +1,4 @@
-package com.lvlin.mvidemo.ui.adapter
+package com.lvlin.mvvmdemo.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,8 +7,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.lvlin.mvidemo.R
 import com.lvlin.mvidemo.data.model.User
+import com.lvlin.mvvmdemo.R
 
 /**
  * @author: lvlin

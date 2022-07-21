@@ -1,40 +1,34 @@
-package com.lvlin.mvidemo.ui.view
+package com.lvlin.mvvmdemo.ui.view
 
 import androidx.lifecycle.ViewModelProviders
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
-import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.lvlin.mvidemo.R
-import com.lvlin.mvidemo.data.api.ApiHelperImpl
-import com.lvlin.mvidemo.data.api.RetrofitBuilder
 import com.lvlin.mvidemo.data.model.User
-import com.lvlin.mvidemo.ui.adapter.MainAdapter
-import com.lvlin.mvidemo.ui.intent.MainIntent
-import com.lvlin.mvidemo.ui.viewmodel.MainViewModel
-import com.lvlin.mvidemo.ui.viewstate.MainState
-import com.lvlin.mvidemo.util.ViewModelFactory
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
+import com.lvlin.mvvmdemo.ui.adapter.MainAdapter
+import com.lvlin.mvvmdemo.R
+import com.lvlin.mvvmdemo.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 
-@ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var mainViewModel: MainViewModel
+    companion object{
+        const val TAG = "MainActivity"
+    }
+
+    private val viewModel by lazy { ViewModelProviders.of(this).get(MainViewModel::class.java) }
     private var adapter = MainAdapter(arrayListOf())
 
     private lateinit var buttonFetchUser: Button
     private lateinit var recyclerview: RecyclerView
     private lateinit var progressBar: ProgressBar
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,9 +37,7 @@ class MainActivity : AppCompatActivity() {
         recyclerview = findViewById(R.id.recyclerView)
         progressBar = findViewById(R.id.progressBar)
 
-
         setupUI()
-        setupViewModel()
         observeViewModel()
         setupClicks()
     }
@@ -66,53 +58,28 @@ class MainActivity : AppCompatActivity() {
     private fun setupClicks() {
         buttonFetchUser.setOnClickListener {
             lifecycleScope.launch {
-                mainViewModel.userIntent.send(MainIntent.FetchUser)
+                buttonFetchUser.visibility = View.GONE
+                progressBar.visibility = View.VISIBLE
+                viewModel.fetchUsers()
             }
         }
     }
 
-
-    private fun setupViewModel() {
-        mainViewModel = ViewModelProvider(
-            this,
-            ViewModelFactory(
-                ApiHelperImpl(
-                    RetrofitBuilder.apiService
-                )
-            )
-        ).get(MainViewModel::class.java)
-    }
-
     private fun observeViewModel() {
         lifecycleScope.launch {
-            mainViewModel.state.collect {
-                when (it) {
-                    is MainState.Idle -> {
-
-                    }
-                    is MainState.Loading -> {
-                        buttonFetchUser.visibility = View.GONE
-                        progressBar.visibility = View.VISIBLE
-                    }
-
-                    is MainState.Users -> {
-                        progressBar.visibility = View.GONE
-                        buttonFetchUser.visibility = View.GONE
-                        renderList(it.user)
-                    }
-
-                    is MainState.Error -> {
-                        progressBar.visibility = View.GONE
-                        buttonFetchUser.visibility = View.VISIBLE
-                        Toast.makeText(this@MainActivity, it.error, Toast.LENGTH_LONG).show()
-                    }
+            viewModel._users.observe(this@MainActivity,{
+                val users = it
+                if(users != null) {
+                    progressBar.visibility = View.GONE
+                    renderList(users)
                 }
-            }
+            })
         }
     }
 
     private fun renderList(users: List<User>) {
         recyclerview.visibility = View.VISIBLE
+        Log.d(TAG, "renderList =$users")
         users.let { listofUsers -> listofUsers.let { adapter.addData(it) } }
         adapter.notifyDataSetChanged()
     }

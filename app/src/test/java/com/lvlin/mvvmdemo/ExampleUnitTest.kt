@@ -1,4 +1,4 @@
-package com.lvlin.mvidemo
+package com.lvlin.mvvmdemo
 
 import org.junit.Test
 
