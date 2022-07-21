@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MVIDemo</string>
+    <string name="fetch_user">Fetch User</string>
+
+</resources>
