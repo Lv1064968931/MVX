@@ -1,21 +1,19 @@
 package com.lvlin.mvvmdemo.ui.view
 
-import androidx.lifecycle.ViewModelProviders
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
-import androidx.lifecycle.lifecycleScope
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lvlin.mvidemo.data.model.User
-import com.lvlin.mvvmdemo.ui.adapter.MainAdapter
 import com.lvlin.mvvmdemo.R
+import com.lvlin.mvvmdemo.ui.adapter.MainAdapter
 import com.lvlin.mvvmdemo.ui.viewmodel.MainViewModel
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,16 +55,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClicks() {
         buttonFetchUser.setOnClickListener {
-            lifecycleScope.launch {
                 buttonFetchUser.visibility = View.GONE
                 progressBar.visibility = View.VISIBLE
                 viewModel.fetchUsers()
-            }
         }
     }
 
     private fun observeViewModel() {
-        lifecycleScope.launch {
             viewModel._users.observe(this@MainActivity,{
                 val users = it
                 if(users != null) {
@@ -74,7 +69,6 @@ class MainActivity : AppCompatActivity() {
                     renderList(users)
                 }
             })
-        }
     }
 
     private fun renderList(users: List<User>) {
